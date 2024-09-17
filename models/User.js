@@ -31,19 +31,19 @@ const userSchema = new mongoose.Schema({
     favourites: [
         {
             type: mongoose.Types.ObjectId,
-            ref: "Book",  // Refer to 'Book' model
+            ref: "books", 
         },
     ],
     cart: [
         {
             type: mongoose.Types.ObjectId,
-            ref: "Book",  // Refer to 'Book' model
+            ref: "books",  // Refer to 'Book' model
         },
     ],
     orders: [
         {
             type: mongoose.Types.ObjectId,
-            ref: "Order",  // Refer to 'Order' model
+            ref: "order",  // Refer to 'Order' model
         },
     ],
 }, { timestamps: true });
