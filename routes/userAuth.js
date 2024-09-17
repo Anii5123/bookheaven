@@ -1,20 +1,23 @@
 const jwt = require("jsonwebtoken");
 
+// Middleware to authenticate token
 const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
+  const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ msg: "No token provided, authorization denied" });
+  }
 
-    if (token == null) {
-        return res.status(401).json({ msg: "Authentication token required" });
+  jwt.verify(token, "bookstore123", (err, user) => {
+    if (err) {
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({ msg: "Token expired. Please signIn again." });
+      }
+      return res.status(403).json({ msg: "Invalid token" });
     }
-    
-    jwt.verify(token, "bookStore123", (err, user) => {
-        if (err) {
-            return res.status(403).json({ msg: "Token expired. Please signIn again."});
-        }
-        req.user = user;
-        next();
-    });
+    req.user = user;
+    next();
+  });
 };
 
-module.exports = {authenticateToken};
+module.exports = { authenticateToken };

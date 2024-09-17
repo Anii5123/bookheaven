@@ -82,6 +82,7 @@ router.post("/sign-up", async (req, res) => {
 });
 
 // Sign-in route
+// Sign-in route with detailed error logging
 router.post("/sign-in", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -93,19 +94,28 @@ router.post("/sign-in", async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, existingUser.password);
     if (isMatch) {
-      const authClaims = { id: existingUser._id, role: existingUser.role }; // Adjusted claims
-      const token = jwt.sign(authClaims, "bookstore123", { expiresIn: "1d" });
-      res
-        .status(200)
-        .json({ id: existingUser._id, role: existingUser.role, token });
+      const authClaims = { id: existingUser._id, role: existingUser.role }; 
+      const token = jwt.sign(authClaims, "bookstore123", { expiresIn: "30d" }); 
+
+      // Logging token, id, and role in the console
+      console.log(`Token: ${token}`);
+      console.log(`ID: ${existingUser._id}`);
+      console.log(`Role: ${existingUser.role}`);
+
+      return res.status(200).json({
+        id: existingUser._id,
+        role: existingUser.role,
+        token: token,
+      });
     } else {
       return res.status(400).json({ msg: "Invalid Credentials" });
     }
   } catch (error) {
-    console.error("Error occurred during sign-in:", error); // Log the error for debugging
+    console.error("Sign-in Error: ", error.message);  // Log specific error message
     return res.status(500).json({ msg: "Internal Server Error" });
   }
 });
+
 
 // Get user information
 router.get("/get-user-information", authenticateToken, async (req, res) => {
