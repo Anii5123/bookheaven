@@ -87,11 +87,13 @@ router.post("/sign-in", async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // Check if the user exists
     const existingUser = await User.findOne({ username });
     if (!existingUser) {
       return res.status(400).json({ msg: "Invalid Credentials" });
     }
 
+    // Compare passwords
     const isMatch = await bcrypt.compare(password, existingUser.password);
     if (isMatch) {
       const authClaims = { id: existingUser._id, role: existingUser.role }; 
@@ -102,19 +104,24 @@ router.post("/sign-in", async (req, res) => {
       console.log(`ID: ${existingUser._id}`);
       console.log(`Role: ${existingUser.role}`);
 
+      // Return the success message with user info and token
       return res.status(200).json({
-        id: existingUser._id,
-        role: existingUser.role,
-        token: token,
+        msg: "Sign in successfully",   // Success message
+        // id: existingUser._id,
+        // role: existingUser.role,
+        // token: token,
       });
     } else {
+      // If the password doesn't match
       return res.status(400).json({ msg: "Invalid Credentials" });
     }
   } catch (error) {
-    console.error("Sign-in Error: ", error.message);  // Log specific error message
+    // Log the specific error and return a 500 response
+    console.error("Sign-in Error: ", error.message);  
     return res.status(500).json({ msg: "Internal Server Error" });
   }
 });
+
 
 
 // Get user information
